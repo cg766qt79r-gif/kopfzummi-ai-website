@@ -1,0 +1,12 @@
+# Interne Design-Varianten & Concept-Seiten — nicht für die Live-Website
+index-b.html
+index-c.html
+concepts.html
+concepts-v2.html
+
+# Backups
+*.bak
+
+# Lokales / OS
+.DS_Store
+.claude/
