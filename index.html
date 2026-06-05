@@ -1,1837 +1,419 @@
 <!doctype html>
-<html lang="de" data-theme="cockpit">
+<html lang="de" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>kopfzummi.ai · Klinik trifft Maschine</title>
-  <meta name="description" content="kopfzummi.ai ist die Werkstatt für klinisch-neurologische Software von Jens Neumann, Klinik für Neurologie am UKMD Magdeburg." />
-  <link rel="icon" href="assets/brain.png" />
+  <title>kopfzummi.ai · Digitale Werkzeuge für die Neurologie</title>
+  <meta name="description" content="kopfzummi.ai entwickelt digitale Werkzeuge für den neurologischen Klinikalltag. Das erste ist Skript: der KI-Anamnese-Assistent, der lokal in Deutschland läuft, jede Aussage belegt und an DGN-Leitlinien geht, statt sie zu erfinden." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
 
   <style>
-    /* ============================================================
-       Tokens · Cockpit (default) + Midnight Abyss (alt)
-       ============================================================ */
-    :root, [data-theme="cockpit"] {
-      --bg-base: #07080a;
-      --bg-surface-1: #0d0f12;
-      --bg-surface-2: #14171b;
-      --bg-surface-3: #1a1d22;
-      --border-subtle: #1f2227;
-      --border-strong: #2a2e35;
-      --text-primary: #e6e7ea;
-      --text-secondary: #9096a0;
-      --text-muted: #5b606b;
-      --text-faint: #3d4148;
-      --accent: #f5c518;
-      --accent-soft: rgba(245, 197, 24, 0.12);
-      --accent-strong: #ffd633;
-      --accent-rgb: 245 197 24;
-      --grid-line-rgb: 245 197 24;
-      --cyan: #2dd4bf;
-      --success: #34d399;
-      --info: #60a5fa;
-      --warn: #fb923c;
-      --danger: #f87171;
-    }
-    [data-theme="abyss"] {
-      --bg-base: #05060f;
-      --bg-surface-1: #0a0c18;
-      --bg-surface-2: #10131f;
-      --bg-surface-3: #161a28;
-      --border-subtle: rgba(186, 215, 247, 0.10);
-      --border-strong: rgba(186, 215, 247, 0.22);
-      --text-primary: #d8ecf8;
-      --text-secondary: #d1e4fa;
-      --text-muted: #9da7ba;
-      --text-faint: #6a7388;
-      --accent: #663af3;
-      --accent-soft: rgba(102, 58, 243, 0.16);
-      --accent-strong: #8b6cff;
-      --accent-rgb: 102 58 243;
-      --grid-line-rgb: 186 215 247;
-      --cyan: #b6d9fc;
+    /* ===========================================================
+       Tokens — Dark2 · Midnight Command Center · Akzent: Neon Violet
+       (übernommen aus skript.kopfzummi.ai)
+       =========================================================== */
+    :root[data-theme="dark"] {
+      --bg: #05060f;
+      --bg-1: #0a0b16;
+      --bg-2: #0f111e;
+      --bg-3: #141728;
+      --border: rgba(186, 215, 247, 0.14);
+      --border-soft: rgba(186, 215, 247, 0.07);
+      --text: #d8ecf8;
+      --text-2: #aab4c8;
+      --text-3: #81899b;
+      --amber: #663af3;        /* Neon Violet — accent / CTA */
+      --amber-strong: #7c52ff;
+      --amber-ink: #b6a6ff;
+      --amber-dim: rgba(102, 58, 243, 0.18);
+      --amber-glow: rgba(102, 58, 243, 0.45);
+      --cyan-bright: #b6d9fc;
+      --cyan-bar: rgba(182, 217, 252, 0.12);
+      --cyan-bar-ink: #cfe6fb;
+      --green: #34d399;
+      --green-dim: rgba(52, 211, 153, 0.12);
+      --glass-bg: rgba(186, 214, 247, 0.03);
+      --glass-border: rgba(186, 215, 247, 0.10);
+      --btn-amber-ink: #ffffff;
+      --grid-line: rgba(127, 127, 127, 0.05);
     }
 
-    /* ============================================================
-       Reset & Base
-       ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    /* Light · DoL 2 Warm Canvas (Terracotta) — via Toggle */
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --bg-1: #ffffff;
+      --bg-2: #f7f7f8;
+      --bg-3: #fbe1d1;
+      --border: rgba(23, 25, 28, 0.10);
+      --border-soft: rgba(23, 25, 28, 0.07);
+      --text: #17191c;
+      --text-2: #4c4c4c;
+      --text-3: #777b86;
+      --amber: #5d2a1a;        /* Terracotta */
+      --amber-strong: #4a2014;
+      --amber-ink: #5d2a1a;
+      --amber-dim: #fbe1d1;
+      --amber-glow: rgba(93, 42, 26, 0.20);
+      --cyan-bright: #5d2a1a;
+      --cyan-bar: #fbe1d1;
+      --cyan-bar-ink: #5d2a1a;
+      --green: #1f7a4d;
+      --green-dim: rgba(31, 122, 77, 0.10);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(4, 23, 43, 0.08);
+      --btn-amber-ink: #ffffff;
+      --grid-line: rgba(23, 25, 28, 0.05);
+    }
+
+    :root {
+      --mono: "JetBrains Mono", "iA Writer Mono", Menlo, ui-monospace, "SF Mono", monospace;
+      --maxw: 1180px;
+    }
+
+    /* ===========================================================
+       Base
+       =========================================================== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
     body {
-      font-family: 'Geist', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg-base);
-      color: var(--text-primary);
-      font-size: 14px;
-      line-height: 1.5;
-      letter-spacing: -0.005em;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
+      overflow-x: clip;
+      transition: background .3s ease, color .3s ease;
     }
     a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
-    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
-    .mono {
-      font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, monospace;
-      font-feature-settings: "ss01", "cv01", "cv11", "tnum";
+    /* ===========================================================
+       Nav
+       =========================================================== */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-soft);
     }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 62px; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; font-size: 18px; }
+    /* Wortmarke v9 · "Pure Mono · stripped" */
+    .wm-mono {
+      font-family: var(--mono); font-weight: 500; letter-spacing: -0.01em; line-height: 1;
+      display: inline-flex; align-items: center; white-space: nowrap; color: var(--text);
+    }
+    .wm-mono .ai { color: var(--amber-ink); }
+    /* Hirn-Mark (Brain + Circuit), Theme-abhängig dark/light */
+    .brainmark { flex: 0 0 auto; width: 26px; height: 27px; background: center / contain no-repeat; }
+    :root[data-theme="dark"]  .brainmark { background-image: url("assets/brain-dark.png"); }
+    :root[data-theme="light"] .brainmark { background-image: url("assets/brain-light.png"); }
+    .ft .brainmark { width: 22px; height: 23px; }
+    .nav-links { display: flex; align-items: center; gap: 26px; }
+    .nav-links a { font-size: 14.5px; color: var(--text-2); transition: color .18s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
 
-    /* ============================================================
-       Atmosphere · 4 ambient layers
-       ============================================================ */
-    body::before {
-      content: "";
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgb(var(--grid-line-rgb) / 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgb(var(--grid-line-rgb) / 0.04) 1px, transparent 1px);
-      background-size: 32px 32px;
-      -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 30%, transparent 80%);
-              mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 30%, transparent 80%);
+    .theme-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 2px; background: var(--bg-1); }
+    .theme-toggle button {
+      appearance: none; background: transparent; border: 0; cursor: pointer;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-3); padding: 5px 11px; border-radius: 999px; transition: all .16s;
     }
-    body::after {
-      content: "";
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 60vmax 50vmax at 12% 18%, rgb(var(--accent-rgb) / 0.13), transparent 60%),
-        radial-gradient(ellipse 50vmax 45vmax at 78% 28%, rgba(45, 212, 191, 0.06), transparent 65%);
-      animation: aurora-drift 40s ease-in-out infinite alternate;
-    }
-    @keyframes aurora-drift {
-      0%   { transform: translate3d(0, 0, 0) scale(1); opacity: 0.95; }
-      100% { transform: translate3d(2%, 1%, 0) scale(1.04); opacity: 1; }
-    }
-    .cursor-spot {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: radial-gradient(
-        180px circle at var(--mx, -1000px) var(--my, -1000px),
-        rgb(var(--accent-rgb) / 0.10),
-        transparent 70%
-      );
-      transition: background-position 80ms linear;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      body::after { animation: none; }
-      .cursor-spot { display: none; }
-    }
-    @media (hover: none) { .cursor-spot { display: none; } }
+    .theme-toggle button[aria-pressed="true"] { background: var(--amber-dim); color: var(--amber-ink); }
 
-    /* ============================================================
-       Layout
-       ============================================================ */
-    .shell { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-
-    /* Topbar */
-    .topbar {
-      position: sticky; top: 0; z-index: 30;
-      backdrop-filter: blur(10px) saturate(140%);
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
-      background: color-mix(in oklab, var(--bg-base) 78%, transparent);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .topbar .inner {
-      max-width: 1200px; margin: 0 auto;
-      padding: 10px 24px;
-      display: flex; align-items: center; gap: 16px;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand .mark {
-      width: 30px; height: 30px;
-      background: url("assets/brain.png") center/contain no-repeat;
-      filter: drop-shadow(0 0 8px rgb(var(--accent-rgb) / 0.18));
-    }
-    .topbar nav {
-      margin-left: auto;
-      display: flex; align-items: center; gap: 18px;
-    }
-    .topbar nav a {
-      font-family: 'Geist Mono', monospace; font-size: 11px;
-      text-transform: lowercase; letter-spacing: 0.12em;
-      color: var(--text-muted);
-      transition: color 160ms;
-    }
-    .topbar nav a:hover { color: var(--text-primary); }
-    .topbar nav a .dot { color: var(--accent); margin-right: 4px; }
-    .theme-toggle {
-      font-family: 'Geist Mono', monospace; font-size: 10px;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-subtle);
-      padding: 5px 10px; border-radius: 4px;
-      transition: all 160ms;
-    }
-    .theme-toggle:hover {
-      border-color: rgb(var(--accent-rgb) / 0.4);
-      color: var(--text-primary);
-      background: var(--accent-soft);
-    }
-    .theme-toggle .dot { color: var(--accent); margin-right: 6px; }
-
-    /* Wortmarke V9 — Pure Mono Stripped */
-    .wm-v9 {
-      font-family: 'JetBrains Mono', 'Geist Mono', ui-monospace, monospace;
-      font-weight: 500; font-size: 17px;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
-      line-height: 1;
-    }
-    .wm-v9 .ai { color: var(--accent); }
-
-    /* Mono section label · the leading "·" prompt */
-    .label {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.22em;
-      color: var(--text-muted);
-      display: inline-flex; align-items: center; gap: 6px;
-    }
-    .label::before { content: "·"; color: var(--text-faint); }
-    .label.live::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: var(--success); box-shadow: 0 0 8px rgb(52 211 153 / 0.7); animation: pulse 1.6s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
-    }
-
-    /* Pill / Tag */
-    .pill {
-      display: inline-flex; align-items: center;
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      background: transparent;
-    }
-    .pill.accent {
-      border-color: rgb(var(--accent-rgb) / 0.4);
-      background: var(--accent-soft);
-      color: var(--accent-strong);
-    }
-    .pill.live { border-color: rgba(52, 211, 153, 0.4); color: #6ee7b7; background: rgba(52, 211, 153, 0.08); }
-    .pill.plan { border-color: rgba(96, 165, 250, 0.4); color: #93c5fd; background: rgba(96, 165, 250, 0.08); }
-    .pill.wip  { border-color: rgba(251, 146, 60, 0.4); color: #fdba74; background: rgba(251, 146, 60, 0.08); }
-
-    /* ============================================================
-       Hero
-       ============================================================ */
-    .hero {
-      padding: 80px 0 64px;
-      position: relative;
-    }
-    .hero .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
-      gap: 48px;
-      align-items: center;
-    }
-    @media (max-width: 800px) {
-      .hero .grid { grid-template-columns: 1fr; gap: 32px; }
-      .hero { padding: 48px 0 32px; }
-    }
-    .hero h1 {
-      font-family: 'Geist', system-ui, sans-serif;
-      font-weight: 600;
-      font-size: clamp(34px, 5.4vw, 56px);
-      line-height: 1.04;
-      letter-spacing: -0.025em;
-      margin: 18px 0 18px;
-      color: var(--text-primary);
-    }
-    .hero h1 .accent { color: var(--accent); }
-    .hero h1 .quiet { color: var(--text-secondary); font-weight: 500; }
-    .hero .lede {
-      font-size: 17px;
-      line-height: 1.55;
-      color: var(--text-secondary);
-      max-width: 580px;
-      margin: 0 0 28px;
-    }
-    .hero .lede strong { color: var(--text-primary); font-weight: 500; }
-    .hero .meta-row {
-      display: flex; flex-wrap: wrap; gap: 8px 16px;
-      margin-bottom: 24px;
-    }
-    .hero .actions {
-      display: flex; flex-wrap: wrap; gap: 10px;
-    }
+    /* buttons */
     .btn {
-      font-family: 'Geist Mono', monospace;
-      font-size: 11px;
-      text-transform: lowercase;
-      letter-spacing: 0.10em;
-      padding: 9px 14px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      transition: all 180ms ease;
-      display: inline-flex; align-items: center; gap: 6px;
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: -0.01em;
+      padding: 11px 22px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--glass-bg); color: var(--text);
+      transition: transform .15s ease, border-color .18s, background .18s, box-shadow .18s;
     }
-    .btn .dot { color: var(--accent); }
-    .btn:hover {
-      background: var(--bg-surface-2);
-      color: var(--text-primary);
-      border-color: var(--border-strong);
-    }
-    .btn.primary {
-      border-color: rgb(var(--accent-rgb) / 0.4);
-      background: var(--accent-soft);
-      color: var(--accent-strong);
-    }
-    .btn.primary:hover {
-      background: rgb(var(--accent-rgb) / 0.18);
-      border-color: rgb(var(--accent-rgb) / 0.6);
-    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--text-3); }
+    .btn.primary { background: var(--amber); color: var(--btn-amber-ink); border-color: var(--amber); }
+    .btn.primary:hover { background: var(--amber-strong); box-shadow: 0 10px 30px var(--amber-glow); }
+    .btn.sm { padding: 8px 15px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 14px; }
 
-    .hero-mark {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-      display: grid; place-items: center;
-    }
-    .hero-mark::before {
-      content: ""; position: absolute; inset: -20%;
-      background: radial-gradient(circle at center, rgb(var(--accent-rgb) / 0.16), transparent 60%);
-      filter: blur(20px);
-      z-index: 0;
-    }
-    .hero-mark img {
-      position: relative; z-index: 1;
-      width: 100%; height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 0 28px rgb(var(--accent-rgb) / 0.16));
-      animation: float 9s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%,100% { transform: translateY(0) rotate(0deg); }
-      50%     { transform: translateY(-6px) rotate(0.4deg); }
-    }
-    @media (prefers-reduced-motion: reduce) { .hero-mark img { animation: none; } }
+    .nav-burger { display: none; background: none; border: 0; color: var(--text); cursor: pointer; font-size: 22px; padding: 6px; line-height: 1; }
+    .mobile-only { display: none; }
 
-    /* Sub-stats strip */
-    .stats-strip {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
-      background: var(--border-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-top: 12px;
+    /* ===========================================================
+       Eyebrow + section header
+       =========================================================== */
+    .eyebrow {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--cyan-bright);
+      display: inline-flex; align-items: center; gap: 10px;
     }
-    @media (max-width: 700px) {
-      .stats-strip { grid-template-columns: repeat(2, 1fr); }
-    }
-    .stat {
-      background: var(--bg-surface-1);
-      padding: 18px 18px 16px;
-    }
-    .stat .num {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600;
-      font-size: 26px;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-    }
-    .stat .num .unit { font-size: 11px; color: var(--text-muted); margin-left: 4px; font-family: 'Geist Mono', monospace; letter-spacing: 0.12em; }
-    .stat .lbl { margin-bottom: 6px; }
+    .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cyan-bright); display: inline-block; }
 
-    /* ============================================================
-       Section
-       ============================================================ */
-    section { padding: 56px 0; position: relative; }
-    .section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-    .section-head h2 {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600;
-      font-size: 30px;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin: 6px 0 0;
-    }
-    .section-head h2 .accent { color: var(--accent); }
-    .section-head .right { display: flex; align-items: center; gap: 10px; }
-
-    /* Card */
-    .card {
-      background: var(--bg-surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color 200ms, box-shadow 200ms, transform 200ms;
-      position: relative;
-    }
-    .card:hover {
-      border-color: rgb(var(--accent-rgb) / 0.22);
-      box-shadow: 0 0 24px rgb(var(--accent-rgb) / 0.06);
-    }
-    .card-head {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 8px;
+    /* ===========================================================
+       Hero
+       =========================================================== */
+    .hero { position: relative; padding: 86px 0 64px; overflow: hidden; }
+    .hero::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
+        radial-gradient(900px 520px at 78% -8%, var(--amber-dim), transparent 60%),
+        radial-gradient(760px 520px at 2% 4%, rgba(79,195,247,0.06), transparent 55%);
     }
-    .card-body { padding: 16px 16px 18px; }
-    .card-body h3 {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600; font-size: 18px;
-      letter-spacing: -0.01em;
-      margin: 0 0 6px;
-      color: var(--text-primary);
-    }
-    .card-body h3 .accent { color: var(--accent); }
-    .card-body p {
-      margin: 0 0 12px;
-      font-size: 13px;
-      line-height: 1.55;
-      color: var(--text-secondary);
-    }
-    .card-meta {
-      margin-top: 10px;
-      display: flex; flex-wrap: wrap; gap: 6px;
-    }
-
-    /* ============================================================
-       Stufen · Iso-Overview + Detail-Cards + Subway-Inset
-       ============================================================ */
-
-    /* Iso-Stack als Hero-Visual oben in der Sektion */
-    .iso-overview {
-      position: relative;
-      width: 100%;
-      margin: 22px 0 38px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      background:
-        radial-gradient(ellipse at top, rgba(var(--accent-rgb), 0.06), transparent 60%),
-        radial-gradient(ellipse at bottom right, rgba(45, 212, 191, 0.04), transparent 65%),
-        linear-gradient(180deg, var(--bg-base) 0%, #050608 100%);
-      overflow: hidden;
-      aspect-ratio: 800 / 440;
-    }
-    .iso-overview::before {
-      content: ""; position: absolute; inset: 0;
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
       background-image:
-        linear-gradient(rgba(var(--accent-rgb), 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--accent-rgb), 0.025) 1px, transparent 1px);
-      background-size: 28px 28px;
-      pointer-events: none;
-      z-index: 0;
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 38px 38px;
+      -webkit-mask-image: radial-gradient(ellipse 90% 70% at 60% 0%, black 20%, transparent 75%);
+              mask-image: radial-gradient(ellipse 90% 70% at 60% 0%, black 20%, transparent 75%);
     }
-    .iso-overview svg {
-      position: relative;
-      z-index: 1;
-      width: 100%; height: 100%;
-      display: block;
+    .hero-inner { position: relative; z-index: 1; }
+    .hero-copy { min-width: 0; }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 46px); line-height: 1.1; letter-spacing: -0.03em;
+      font-weight: 600; margin: 20px 0 18px; overflow-wrap: break-word;
     }
-    .iso-overview .caption {
-      position: absolute;
-      bottom: 14px; left: 18px;
-      z-index: 2;
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.22em;
-      color: var(--text-muted);
-    }
-    .iso-overview .caption::before { content: "· "; color: var(--text-faint); }
+    .hero h1 .a { color: var(--amber-ink); font-style: italic; font-weight: 500; }
+    .hero .lede { font-size: 18px; color: var(--text-2); max-width: 620px; margin-bottom: 28px; line-height: 1.6; }
+    .hero .lede strong { color: var(--text); font-weight: 600; }
+    .hero .micro { margin-top: 22px; font-family: var(--mono); font-size: 12px; color: var(--text-3); letter-spacing: 0.04em; }
 
-    /* Stufen-Wrapper (ohne Rail) */
-    .stufen-rack {
-      position: relative;
-      margin-top: 0;
+    /* ===========================================================
+       Product glass panel (skript · pipeline)
+       =========================================================== */
+    .panel {
+      background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45); overflow: hidden;
     }
-    .stufen {
-      display: grid;
-      gap: 16px;
-      position: relative;
-    }
+    .panel-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--border-soft); }
+    .panel-bar .d { width: 10px; height: 10px; border-radius: 999px; background: var(--border); }
+    .panel-bar .t { margin-left: 10px; font-family: var(--mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; }
+    .panel-body { padding: 18px; }
+    .flowrow { display: flex; align-items: stretch; gap: 8px; }
+    .flowcell { flex: 1; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--bg-1); padding: 10px 8px; text-align: center; }
+    .flowcell .ic { height: 22px; display: flex; align-items: center; justify-content: center; color: var(--text-2); }
+    .flowcell .ic svg { width: 22px; height: 22px; }
+    .flowcell .nm { font-family: var(--mono); font-size: 10px; color: var(--text-2); margin-top: 6px; letter-spacing: 0.02em; }
+    .flowcell.pro { border-color: var(--amber); background: var(--amber-dim); box-shadow: 0 0 0 1px var(--amber), 0 0 18px var(--amber-glow); }
+    .flowcell.pro .ic, .flowcell.pro .nm { color: var(--amber-ink); }
+    .panel-mini { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mini { border: 1px solid var(--border-soft); border-radius: 10px; padding: 12px; background: var(--bg-1); }
+    .mini .h { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+    .mini .ln { font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+    .mini .ln b { color: var(--text); }
+    .mini .tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; color: var(--green); background: var(--green-dim); border-radius: 6px; padding: 3px 7px; margin-top: 8px; }
+    .mini .tag svg { width: 12px; height: 12px; }
 
-    /* Modul-Slab */
-    .layer {
-      position: relative;
-      background:
-        linear-gradient(180deg,
-          var(--bg-surface-1) 0%,
-          color-mix(in oklab, var(--bg-surface-1) 92%, #000) 100%);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 18px 20px;
-      transition: border-color 220ms, box-shadow 220ms, transform 220ms;
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.025) inset,
-        0 6px 14px rgba(0,0,0,0.30);
-    }
-    .layer:hover {
-      border-color: rgb(var(--accent-rgb) / 0.32);
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.025) inset,
-        0 8px 18px rgba(0,0,0,0.30),
-        0 0 28px rgb(var(--accent-rgb) / 0.10);
-      transform: translateY(-1px);
-    }
+    /* ---- Hero-Demo-Animation (Money-Shot) ---- */
+    .flowcell { transition: border-color .35s ease, background .35s ease, box-shadow .35s ease; }
+    .flowcell .ic, .flowcell .nm { transition: color .35s ease; }
+    .flowcell.lit { border-color: var(--amber); background: var(--amber-dim); box-shadow: 0 0 0 1px var(--amber), 0 0 18px var(--amber-glow); }
+    .flowcell.lit .ic, .flowcell.lit .nm { color: var(--amber-ink); }
+    .flowcell.done { border-color: rgba(52,211,153,0.35); }
+    .flowcell.done .ic, .flowcell.done .nm { color: var(--green); }
+    .hero-caret { display: inline-block; width: 2px; height: 1.05em; vertical-align: -2px; margin-left: 1px; background: var(--amber-ink); animation: hero-blink 1s steps(2) infinite; }
+    @keyframes hero-blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+    #heroAnamMini { transition: opacity .5s ease, transform .5s ease; }
+    #heroAnamMini.pending { opacity: 0.25; }
+    #heroAnamMini.reveal-anam { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .hero-caret { animation: none; display: none; } }
 
-    /* Linker farbiger Akzent-Stripe pro Modul */
-    .layer::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 14px; bottom: 14px;
-      width: 3px;
-      background: var(--accent);
-      border-radius: 0 2px 2px 0;
-      opacity: 0.6;
-    }
+    /* ===========================================================
+       Section · CTA
+       =========================================================== */
+    .block-cta { padding: 6px 0 84px; }
 
-    /* Foundation-Layer (Stufe 01) — als Sockel */
-    .layer.layer-base {
-      border-color: rgba(var(--accent-rgb), 0.24);
-      background:
-        linear-gradient(180deg,
-          color-mix(in oklab, var(--bg-surface-1) 86%, var(--accent-soft)) 0%,
-          var(--bg-surface-1) 100%);
-      box-shadow:
-        0 1px 0 rgba(var(--accent-rgb), 0.12) inset,
-        0 8px 18px rgba(0,0,0,0.32),
-        0 0 30px rgba(var(--accent-rgb), 0.08);
+    /* ---- Demo-Zeile: CTA links, Pipeline rechts ---- */
+    .demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .demo-cta { border: 1px solid var(--border-soft); border-radius: 16px; background: var(--glass-bg); padding: 28px 30px; }
+    .demo-cta .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
+    .demo-cta p { font-size: 16px; color: var(--text-2); line-height: 1.6; margin-bottom: 22px; }
+    section.block { position: relative; padding: 28px 0 84px; }
+    h2.title {
+      font-size: clamp(22px, 3.2vw, 32px); line-height: 1.15; letter-spacing: -0.02em;
+      font-weight: 600; margin: 14px 0 14px; max-width: 760px;
     }
-    .layer.layer-base::before {
-      width: 4px;
-      opacity: 1;
-      box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.5);
-    }
+    h2.title .a { color: var(--amber-ink); font-style: italic; font-weight: 500; }
+    .sec-lede { font-size: 17px; color: var(--text-2); max-width: 700px; margin-bottom: 32px; line-height: 1.6; }
+    .sec-lede strong { color: var(--text); font-weight: 600; }
 
-    /* Body-Layout · Inhalt links, Visual rechts */
-    .layer-body {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 180px;
-      gap: 24px;
-      align-items: center;
+    /* feature cards */
+    .block-cards { padding: 8px 0 0; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .feat {
+      border: 1px solid var(--border-soft); border-radius: 14px; background: var(--bg-1);
+      padding: 22px 22px; transition: border-color .18s, box-shadow .18s, transform .18s;
     }
-    @media (max-width: 760px) {
-      .layer-body { grid-template-columns: 1fr; gap: 14px; }
-      .layer-visual { max-width: 220px; }
+    .feat:hover { border-color: var(--amber-dim); box-shadow: 0 12px 30px rgba(0,0,0,0.18); transform: translateY(-2px); }
+    .feat .n { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--text-3); }
+    .feat h3 { font-size: 16px; font-weight: 600; margin: 8px 0 6px; color: var(--text); }
+    .feat p { font-size: 14px; color: var(--text-2); line-height: 1.55; }
+
+    /* pullquote */
+    blockquote.pull {
+      margin: 32px 0 0; padding: 22px 26px; border-radius: 14px;
+      background: var(--amber-dim); border: 1px solid var(--amber-glow);
+      color: var(--amber-ink); font-style: italic; font-size: 16px; line-height: 1.55; letter-spacing: -0.005em;
     }
 
-    .layer-content { min-width: 0; }
-    .layer-head {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
+    /* cta */
+    .cta {
+      margin-top: 34px; padding: 28px; border-radius: 16px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
     }
-    .layer .stufe-num {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-      padding: 4px 9px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      background: var(--bg-surface-2);
-      text-transform: uppercase;
-    }
-    .layer.layer-base .stufe-num {
-      color: var(--accent-strong);
-      border-color: rgba(var(--accent-rgb), 0.40);
-      background: var(--accent-soft);
-    }
-    .layer h3 {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600;
-      font-size: 18px;
-      letter-spacing: -0.01em;
-      margin: 0;
-      flex: 1;
-      min-width: 160px;
-    }
-    .layer h3 .accent { color: var(--accent); }
-    .layer h3 .quiet { color: var(--text-secondary); font-weight: 500; }
+    .cta .cta-text { max-width: 540px; }
+    .cta .cta-text .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+    .cta .cta-text p { font-size: 15px; color: var(--text-2); line-height: 1.55; }
 
-    .layer p {
-      margin: 0 0 10px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text-secondary);
-    }
-    .layer p strong { color: var(--text-primary); font-weight: 500; }
+    /* footer */
+    footer.ft { border-top: 1px solid var(--border-soft); padding: 32px 0 44px; }
+    footer.ft .ft-inner { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+    footer.ft .who { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    footer.ft .who b { color: var(--text); font-weight: 600; }
+    footer.ft .who a { color: var(--amber-ink); }
+    footer.ft .meta { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text-3); text-transform: lowercase; }
 
-    .layer ul.bullets {
-      list-style: none;
-      padding: 0; margin: 8px 0 0;
-      display: grid; gap: 4px;
+    /* responsive */
+    @media (max-width: 860px) {
+      .nav-links { position: fixed; inset: 62px 0 auto 0; flex-direction: column; align-items: flex-start; gap: 18px; padding: 22px 28px 28px; background: var(--bg); border-bottom: 1px solid var(--border); transform: translateY(-130%); transition: transform .28s ease; }
+      .nav-links.open { transform: none; }
+      .nav-right .theme-toggle, .nav-right .btn { display: none; }
+      .nav-burger { display: block; }
+      .mobile-only { display: inline-flex; }
+      .hero-inner { max-width: 100%; }
+      .demo-row { grid-template-columns: 1fr; gap: 24px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .flowrow { flex-direction: column; gap: 6px; }
+      .flowcell { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; text-align: left; padding: 10px 12px; }
+      .flowcell .ic { height: auto; }
+      .flowcell .nm { margin-top: 0; font-size: 12px; }
+      .panel-mini { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
     }
-    .layer ul.bullets li {
-      font-family: 'Geist Mono', monospace;
-      font-size: 11px;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
-    }
-    .layer ul.bullets li::before { content: "· "; color: var(--text-faint); }
-
-    /* Visual / SVG-Slot */
-    .layer-visual {
-      position: relative;
-      aspect-ratio: 180 / 120;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      background:
-        radial-gradient(ellipse at top right, rgba(var(--accent-rgb), 0.06), transparent 60%),
-        var(--bg-base);
-      overflow: hidden;
-      color: var(--text-secondary);
-    }
-    /* feines Raster im Visual-Slot */
-    .layer-visual::before {
-      content: "";
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
-      background-size: 14px 14px;
-      pointer-events: none;
-    }
-    .layer-visual svg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-      z-index: 1;
-    }
-
-    /* Layer-Scope-Variants — farbiger Stripe pro Modul */
-    .layer.scope-blue::before   { background: #60a5fa; }
-    .layer.scope-violet::before { background: #a78bfa; }
-    .layer.scope-cyan::before   { background: #2dd4bf; }
-
-    /* Privater Track (DoL) — eigene Optik */
-    .layer.track-private {
-      border-style: dashed;
-      border-color: rgba(45, 212, 191, 0.22);
-      background:
-        linear-gradient(180deg,
-          color-mix(in oklab, var(--bg-surface-1) 92%, rgba(45, 212, 191, 0.05)) 0%,
-          var(--bg-surface-1) 100%);
-    }
-    .layer.track-private::before {
-      background: #2dd4bf;
-      box-shadow: 0 0 12px rgba(45, 212, 191, 0.45);
-    }
-    .layer.track-private .stufe-num {
-      color: #5eead4;
-      border-color: rgba(45, 212, 191, 0.45);
-      background: rgba(45, 212, 191, 0.10);
-    }
-
-    .track-divider {
-      display: flex; align-items: center; gap: 14px;
-      margin: 28px 0 16px;
-    }
-    .track-divider::before, .track-divider::after {
-      content: ""; flex: 1; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
-    }
-    .track-divider .label { white-space: nowrap; }
-
-    /* Scope-Pill-Farbvarianten */
-    .pill.scope-base    { border-color: rgba(245, 197, 24, 0.45); color: var(--accent-strong); background: var(--accent-soft); }
-    .pill.scope-local   { border-color: rgba(96, 165, 250, 0.40); color: #93c5fd; background: rgba(96, 165, 250, 0.10); }
-    .pill.scope-board   { border-color: rgba(167, 139, 250, 0.45); color: #c4b5fd; background: rgba(167, 139, 250, 0.10); }
-    .pill.scope-net     { border-color: rgba(45, 212, 191, 0.45); color: #5eead4; background: rgba(45, 212, 191, 0.10); }
-    .pill.scope-private { border-color: rgba(244, 114, 182, 0.40); color: #f9a8d4; background: rgba(244, 114, 182, 0.08); }
-
-    /* ============================================================
-       C · Marketecture-Hero · flaches Layer-Diagramm
-       ============================================================ */
-    .marketecture {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin: 26px 0 56px;
-    }
-    .m-stratum {
-      position: relative;
-      display: grid;
-      grid-template-columns: 44px 1fr auto auto;
-      gap: 18px;
-      align-items: center;
-      padding: 14px 20px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 4px;
-      background: linear-gradient(180deg,
-        var(--bg-surface-1) 0%,
-        color-mix(in oklab, var(--bg-surface-1) 95%, #000) 100%);
-      transition: border-color 180ms, transform 180ms;
-    }
-    .m-stratum:hover {
-      border-color: rgba(var(--accent-rgb), 0.30);
-    }
-    .m-stratum .n {
-      font-family: 'Geist Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
-    }
-    .m-stratum .nm {
-      font-family: 'Geist', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text-primary);
-    }
-    .m-stratum .nm .accent { color: var(--accent); }
-    .m-stratum .nm .quiet { color: var(--text-secondary); font-weight: 500; }
-    .m-stratum .tags {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.10em;
-      color: var(--text-muted);
-    }
-    .m-stratum .m-pill {
-      font-family: 'Geist Mono', monospace;
-      font-size: 9.5px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-    .m-stratum .m-pill.live  { border-color: rgba(52, 211, 153, 0.4); color: #6ee7b7; background: rgba(52, 211, 153, 0.08); }
-    .m-stratum .m-pill.wip   { border-color: rgba(251, 146, 60, 0.4); color: #fdba74; background: rgba(251, 146, 60, 0.08); }
-    .m-stratum .m-pill.plan  { border-color: rgba(96, 165, 250, 0.4); color: #93c5fd; background: rgba(96, 165, 250, 0.08); }
-
-    /* Sockel-Stratum (Stufe 01) */
-    .m-stratum.m-base {
-      background: linear-gradient(180deg,
-        color-mix(in oklab, var(--bg-surface-1) 78%, var(--accent-soft)) 0%,
-        var(--bg-surface-1) 100%);
-      border-color: rgba(var(--accent-rgb), 0.32);
-    }
-    .m-stratum.m-base .n  { color: var(--accent-strong); }
-    .m-stratum.m-base .nm { color: var(--accent-strong); }
-
-    /* Netz-Stratum (Stufe 06) */
-    .m-stratum.m-net {
-      border-color: rgba(45, 212, 191, 0.28);
-    }
-    .m-stratum.m-net .n { color: #5eead4; }
-
-    @media (max-width: 700px) {
-      .m-stratum {
-        grid-template-columns: 36px 1fr;
-        gap: 10px;
-        row-gap: 6px;
-      }
-      .m-stratum .tags, .m-stratum .m-pill {
-        grid-column: 2 / -1;
-        justify-self: start;
-      }
-    }
-
-    /* ============================================================
-       A · Editorial Numeralen-Stack
-       ============================================================ */
-    .stufen-editorial {
-      margin-top: 14px;
-    }
-    .editorial-row {
-      display: grid;
-      grid-template-columns: 130px minmax(0, 1fr) 300px;
-      gap: 36px;
-      padding: 44px 0;
-      border-top: 1px solid var(--border-subtle);
-      align-items: start;
-    }
-    .editorial-row:last-of-type { border-bottom: 1px solid var(--border-subtle); }
-    .editorial-row .numeral {
-      font-family: 'Geist', sans-serif;
-      font-size: 96px;
-      font-weight: 300;
-      line-height: 0.95;
-      letter-spacing: -0.04em;
-      color: var(--text-primary);
-      font-variant-numeric: tabular-nums;
-    }
-    .editorial-row .content { min-width: 0; padding-top: 12px; }
-    .editorial-row .content .sub {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-    .editorial-row .content .sub::before { content: "· "; color: var(--text-faint); }
-    .editorial-row .content h3 {
-      font-family: 'Geist', sans-serif;
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin: 0 0 12px;
-    }
-    .editorial-row .content h3 .accent { color: var(--accent); }
-    .editorial-row .content h3 .quiet { color: var(--text-secondary); font-weight: 500; }
-    .editorial-row .content p {
-      font-family: 'Geist', sans-serif;
-      font-size: 14.5px;
-      line-height: 1.65;
-      color: var(--text-secondary);
-      margin: 0 0 14px;
-      max-width: 60ch;
-    }
-    .editorial-row .content p strong { color: var(--text-primary); font-weight: 500; }
-    .editorial-row .content ul.bullets {
-      list-style: none;
-      padding: 0; margin: 16px 0 0;
-      display: grid; gap: 5px;
-    }
-    .editorial-row .content ul.bullets li {
-      font-family: 'Geist Mono', monospace;
-      font-size: 11.5px;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
-    }
-    .editorial-row .content ul.bullets li::before {
-      content: "· "; color: var(--text-faint);
-    }
-
-    .editorial-row .screenshot {
-      position: relative;
-      aspect-ratio: 300 / 200;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      background:
-        radial-gradient(ellipse at top right, rgba(var(--accent-rgb), 0.04), transparent 60%),
-        linear-gradient(180deg, #0e1014, #08090c);
-      overflow: hidden;
-    }
-    .editorial-row .screenshot::before {
-      content: ""; position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(var(--accent-rgb), 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--accent-rgb), 0.03) 1px, transparent 1px);
-      background-size: 14px 14px;
-      pointer-events: none;
-    }
-    .editorial-row .screenshot svg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-
-    /* Scope-Färbung des Numerals */
-    .editorial-row.base .numeral        { color: var(--accent-strong); font-weight: 400; }
-    .editorial-row.scope-blue .numeral  { color: #93c5fd; }
-    .editorial-row.scope-violet .numeral{ color: #c4b5fd; }
-    .editorial-row.scope-cyan .numeral  { color: #5eead4; }
-
-    /* DoL als track-private innerhalb editorial-row */
-    .editorial-row.track-private .numeral {
-      color: #5eead4;
-      font-family: 'Geist Mono', monospace;
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding-top: 24px;
-    }
-    .editorial-row.track-private .screenshot {
-      border-style: dashed;
-      border-color: rgba(45, 212, 191, 0.30);
-    }
-
-    @media (max-width: 900px) {
-      .editorial-row {
-        grid-template-columns: 84px minmax(0, 1fr);
-        gap: 20px;
-        padding: 32px 0;
-      }
-      .editorial-row .numeral { font-size: 64px; }
-      .editorial-row .screenshot {
-        grid-column: 1 / -1;
-        max-width: 320px;
-      }
-      .editorial-row.track-private .numeral { font-size: 22px; padding-top: 14px; }
-    }
-
-    /* Variante-Toggle */
-    .variant-toggle-link {
-      font-family: 'Geist Mono', monospace;
-      font-size: 11px;
-      text-transform: lowercase;
-      letter-spacing: 0.10em;
-      padding: 7px 12px;
-      border-radius: 4px;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: all 160ms;
-      display: inline-flex; align-items: center; gap: 6px;
-      white-space: nowrap;
-    }
-    .variant-toggle-link:hover {
-      border-color: rgba(var(--accent-rgb), 0.5);
-      background: var(--accent-soft);
-      color: var(--accent-strong);
-    }
-    .variant-toggle-link .dot { color: var(--accent); }
-
-    /* Subway-Inset · Skalierbarkeit-Grafik unter den Cards */
-    .subway-inset {
-      margin-top: 32px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      background:
-        radial-gradient(ellipse at 30% 50%, rgba(var(--accent-rgb), 0.05), transparent 60%),
-        linear-gradient(180deg, var(--bg-surface-1) 0%, #07080a 100%);
-      overflow: hidden;
-    }
-    .subway-inset .sw-head {
-      padding: 14px 18px 12px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 8px;
-    }
-    .subway-inset .sw-head h3 {
-      font-family: 'Geist', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin: 4px 0 0;
-    }
-    .subway-inset .sw-head h3 .accent { color: var(--accent); }
-    .subway-inset .sw-body {
-      position: relative;
-      aspect-ratio: 800 / 320;
-      padding: 0;
-    }
-    .subway-inset .sw-body::before {
-      content: ""; position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(var(--accent-rgb), 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(var(--accent-rgb), 0.02) 1px, transparent 1px);
-      background-size: 20px 20px;
-      pointer-events: none;
-    }
-    .subway-inset .sw-body svg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-    .subway-inset .sw-legend {
-      padding: 12px 18px 14px;
-      border-top: 1px solid var(--border-subtle);
-      display: flex; flex-wrap: wrap; gap: 14px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
-    .subway-inset .sw-legend .item { display: inline-flex; align-items: center; gap: 6px; }
-    .subway-inset .sw-legend .swatch {
-      display: inline-block; width: 18px; height: 3px; border-radius: 2px;
-    }
-
-    /* Manifesto two-col */
-    .manifest {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    @media (max-width: 800px) { .manifest { grid-template-columns: 1fr; } }
-    .manifest .item {
-      background: var(--bg-surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 18px 18px 20px;
-      transition: border-color 200ms, box-shadow 200ms;
-    }
-    .manifest .item:hover {
-      border-color: rgb(var(--accent-rgb) / 0.22);
-      box-shadow: 0 0 24px rgb(var(--accent-rgb) / 0.06);
-    }
-    .manifest .item h3 {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600; font-size: 16px;
-      margin: 8px 0 6px;
-      letter-spacing: -0.01em;
-    }
-    .manifest .item p {
-      font-size: 13px; line-height: 1.6;
-      color: var(--text-secondary); margin: 0;
-    }
-    .manifest .item p strong { color: var(--text-primary); font-weight: 500; }
-
-    /* Stack list */
-    .stack {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--border-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    @media (max-width: 800px) { .stack { grid-template-columns: repeat(2, 1fr); } }
-    .stack .col {
-      background: var(--bg-surface-1);
-      padding: 18px 16px 20px;
-    }
-    .stack .col ul {
-      list-style: none; padding: 0; margin: 10px 0 0;
-      display: grid; gap: 5px;
-    }
-    .stack .col li {
-      font-family: 'Geist Mono', monospace;
-      font-size: 11px;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
-    }
-    .stack .col li::before { content: "· "; color: var(--text-faint); }
-
-    /* Story / about block */
-    .story {
-      background: var(--bg-surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 32px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      position: relative;
-      overflow: hidden;
-    }
-    @media (max-width: 800px) { .story { grid-template-columns: 1fr; padding: 22px; } }
-    .story::before {
-      content: ""; position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 60% at 90% 0%, rgb(var(--accent-rgb) / 0.06), transparent 60%);
-      pointer-events: none;
-    }
-    .story > * { position: relative; z-index: 1; }
-    .story h2 {
-      font-family: 'Geist', sans-serif;
-      font-weight: 600;
-      font-size: 28px;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin: 8px 0 12px;
-    }
-    .story h2 .accent { color: var(--accent); }
-    .story p {
-      font-size: 14px; line-height: 1.65;
-      color: var(--text-secondary); margin: 0 0 12px;
-    }
-    .story p strong { color: var(--text-primary); font-weight: 500; }
-    .story .quote {
-      border-left: 2px solid rgb(var(--accent-rgb) / 0.5);
-      padding: 4px 0 4px 14px;
-      font-size: 14px; color: var(--text-primary);
-      font-style: italic;
-      margin: 14px 0 0;
-    }
-    .story .quote .by {
-      display: block; margin-top: 6px;
-      font-family: 'Geist Mono', monospace; font-size: 10px;
-      color: var(--text-muted); letter-spacing: 0.18em;
-      text-transform: uppercase; font-style: normal;
-    }
-
-    /* Contact / footer */
-    .contact {
-      padding: 56px 0 32px;
-    }
-    .contact .card-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-    @media (max-width: 700px) { .contact .card-body { grid-template-columns: 1fr; } }
-    .contact-field .lbl { margin-bottom: 8px; }
-    .contact-field .val {
-      font-family: 'Geist Mono', monospace;
-      font-size: 13px;
-      color: var(--text-primary);
-      letter-spacing: 0.01em;
-    }
-    .contact-field .val a:hover { color: var(--accent); }
-    .contact-field .val .accent { color: var(--accent); }
-
-    footer {
-      max-width: 1200px; margin: 0 auto;
-      padding: 24px 24px 48px;
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 12px;
-      border-top: 1px solid var(--border-subtle);
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.22em;
-      color: var(--text-muted);
-    }
-    footer .left, footer .right { display: flex; gap: 16px; align-items: center; }
-    footer .left::before { content: "·"; color: var(--text-faint); margin-right: 8px; }
-    @media (max-width: 600px) {
-      footer { flex-direction: column; align-items: flex-start; }
-    }
-
-    /* Terminal flavor — homage to V6 (used once for atmosphere) */
-    .terminal-line {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0;
-    }
-    .terminal-line .prompt { color: var(--cyan); font-weight: 700; margin-right: 6px; }
-    .terminal-line .ai { color: var(--accent); }
-    .terminal-line .cursor {
-      display: inline-block; width: 6px; height: 12px;
-      background: var(--accent);
-      vertical-align: -2px; margin-left: 4px;
-      animation: blink 1.05s steps(2, start) infinite;
-    }
-    @keyframes blink { to { visibility: hidden; } }
-    @media (prefers-reduced-motion: reduce) { .terminal-line .cursor { animation: none; } }
   </style>
 </head>
 <body>
-  <div class="cursor-spot" aria-hidden="true"></div>
 
-  <!-- ============================================================
-       Topbar
-       ============================================================ -->
-  <header class="topbar">
-    <div class="inner">
-      <a href="#top" class="brand" aria-label="kopfzummi.ai · Home">
-        <span class="mark" aria-hidden="true"></span>
-        <span class="wm-v9">kopfzummi<span class="ai">.ai</span></span>
-      </a>
-      <nav>
-        <a href="#stufen"><span class="dot">·</span>stufen</a>
-        <a href="#prinzipien"><span class="dot">·</span>prinzipien</a>
-        <a href="#stack"><span class="dot">·</span>stack</a>
-        <a href="#ueber"><span class="dot">·</span>über</a>
-        <a href="#kontakt"><span class="dot">·</span>kontakt</a>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Theme wechseln">
-          <span class="dot">·</span><span id="themeLabel">cockpit</span>
-        </button>
+  <!-- nav -->
+  <div class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top"><span class="brainmark" aria-hidden="true"></span><span class="wm-mono"><span class="name">kopfzummi<span class="ai">.ai</span></span></span></a>
+      <nav class="nav-links" id="navLinks">
+        <div class="theme-toggle mobile-only" role="group" aria-label="Theme (mobil)">
+          <button type="button" data-theme-btn="dark">dark</button>
+          <button type="button" data-theme-btn="light">light</button>
+        </div>
+        <a class="btn primary sm mobile-only" href="https://app.kopfzummi.ai/?register">Kostenlos testen</a>
       </nav>
+      <div class="nav-right">
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button type="button" data-theme-btn="dark" aria-pressed="true">dark</button>
+          <button type="button" data-theme-btn="light" aria-pressed="false">light</button>
+        </div>
+        <a class="btn primary sm" href="https://app.kopfzummi.ai/?register">Kostenlos testen</a>
+        <button class="nav-burger" id="burger" aria-label="Menü" aria-expanded="false">≡</button>
+      </div>
     </div>
-  </header>
+  </div>
 
   <main id="top">
-    <!-- ============================================================
-         Hero
-         ============================================================ -->
-    <section class="hero">
-      <div class="shell">
-        <div class="grid">
-          <div>
-            <div class="meta-row">
-              <span class="label live">live · werkstatt</span>
-              <span class="pill">magdeburg · ukmd</span>
-              <span class="pill">neurologie · ki</span>
-            </div>
-            <h1>
-              <span class="quiet">Klinik trifft</span> <span class="accent">Maschine</span>.<br/>
-              Werkzeuge, die mit&nbsp;dem Kopf <span class="accent">arbeiten</span>.
-            </h1>
-            <p class="lede">
-              <strong>kopfzummi.ai</strong> ist die Werkstatt von Jens Neumann, Neurologe am Universitätsklinikum Magdeburg.
-              Hier entsteht ein mehrstufiges System für die Klinik: vom lokalen Dashboard mit SOPs und Terminen,
-              über persönliches Fall-Memory und Sprach-Anamnese, bis zum klinikübergreifenden Stroke-Netzwerk auf Hashgraph.
-              Daneben läuft <strong>Dashboard of Life</strong> als persönlicher Cockpit mit eigenem KI-Assistenten.
-              <strong>Privat zuerst. Sprache zuerst. KI als Werkzeug, nicht als Ersatz.</strong>
-            </p>
-            <div class="actions">
-              <a href="#stufen" class="btn primary"><span class="dot">·</span>stufen ansehen</a>
-              <a href="#kontakt" class="btn"><span class="dot">·</span>kontakt</a>
-            </div>
-            <div class="terminal-line" style="margin-top:18px;">
-              <span class="prompt">&gt;</span>
-              <span>kopfzummi<span class="ai">.ai</span> --mode=cockpit --user=jens<span class="cursor"></span></span>
-            </div>
-          </div>
 
-          <div class="hero-mark" aria-hidden="true">
-            <img src="assets/brain.png" alt="kopfzummi · Brain-Blueprint" />
+    <!-- hero -->
+    <header class="hero">
+      <div class="hero-grid"></div>
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">digitale werkzeuge · neurologie</span>
+          <h1>Digitale Werkzeuge für die <span class="a">Neurologie</span>.</h1>
+          <p class="lede">
+            <strong>kopfzummi.ai</strong> ist die Werkstatt und baut Software für den neurologischen Alltag mit KI als Werkzeug.
+            Den Anfang macht <strong>Skript</strong>.
+          </p>
+          <div class="btn-row">
+            <a class="btn primary" href="https://skript.kopfzummi.ai">Skript ansehen →</a>
+            <a class="btn" href="mailto:jens_neumann@kopfzummi.ai">kontakt</a>
           </div>
-        </div>
-
-        <div class="stats-strip" aria-label="Werkstatt-Übersicht">
-          <div class="stat">
-            <div class="lbl"><span class="label">stufen</span></div>
-            <div class="num">6<span class="unit">+ 1 track</span></div>
-          </div>
-          <div class="stat">
-            <div class="lbl"><span class="label">reichweite</span></div>
-            <div class="num">lokal<span class="unit">bis netz</span></div>
-          </div>
-          <div class="stat">
-            <div class="lbl"><span class="label">datenschutz</span></div>
-            <div class="num">local<span class="unit">first</span></div>
-          </div>
-          <div class="stat">
-            <div class="lbl"><span class="label">basis</span></div>
-            <div class="num">UKMD<span class="unit">magdeburg</span></div>
-          </div>
+          <div class="micro">· lokal in Deutschland · sprache zuerst · ki als werkzeug</div>
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- ============================================================
-         Stufen · Architektur
-         ============================================================ -->
-    <section id="stufen">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <span class="label">architektur · sechs stufen</span>
-            <h2>Ein System, das von <span class="accent">unten nach oben</span> wächst.</h2>
-          </div>
-          <div class="right">
-            <span class="pill scope-base">basis</span>
-            <span class="pill scope-local">lokal</span>
-            <span class="pill scope-board">board</span>
-            <span class="pill scope-net">netz</span>
-          </div>
-        </div>
-
-        <p style="font-size:14px; color:var(--text-secondary); max-width:780px; margin:0 0 22px; line-height:1.6;">
-          Jede Stufe steht für sich, aber jede baut auf der darunter auf. Das Klinik-Dashboard
-          ist die Basis: Termine, SOPs, Telefonnummern, RAG. Darauf liegt das persönliche
-          Fall-Memory, darauf die Sprach-Anamnese, darauf das Board für externe Anmeldungen,
-          dann die lokale Stroke Unit, ganz oben das Klinik-Netzwerk auf Hashgraph.
-          Was lokal funktioniert, lässt sich auf jede andere Klinik portieren.
+    <!-- Skript-Kacheln -->
+    <section class="block-cards">
+      <div class="wrap">
+        <p class="sec-lede">
+          Skript ist der erste Anamnese-Assistent für die Neurologie, der <strong>in Deutschland läuft</strong>
+          und <strong>jede Aussage anhand von Leitlinien belegt</strong>. Aus jedem Gespräch wird ein nachvollziehbarer Befund.
+          Was rausgeht, ist <strong>anonymisiert und nicht zuordenbar</strong>.
         </p>
-
-        <!-- ============================================================
-             C · Marketecture-Hero · flaches Layer-Diagramm
-             ============================================================ -->
-        <div class="marketecture" role="img" aria-label="Sechs Stufen als flaches Layer-Diagramm">
-          <div class="m-stratum m-net">
-            <span class="n">06</span>
-            <span class="nm">Stroke <span class="accent">Network</span></span>
-            <span class="tags">multi-klinik · hashgraph</span>
-            <span class="m-pill live">live</span>
+        <div class="cards">
+          <div class="feat">
+            <div class="n">01</div>
+            <h3>Lokal &amp; in Deutschland</h3>
+            <p>Die Transkription läuft lokal. Keine Aufnahme, keine Patientendaten gehen in eine fremde Cloud.</p>
           </div>
-          <div class="m-stratum">
-            <span class="n">05</span>
-            <span class="nm">Stroke Unit</span>
-            <span class="tags">pro klinik · echtzeit</span>
-            <span class="m-pill live">live</span>
+          <div class="feat">
+            <div class="n">02</div>
+            <h3>4-Stufen-Anonymisierung</h3>
+            <p>Vier Stufen entfernen den Personenbezug, bevor Skript weiterarbeitet.</p>
           </div>
-          <div class="m-stratum">
-            <span class="n">04</span>
-            <span class="nm">Neuro-<span class="accent">Board</span></span>
-            <span class="tags">multi-klinik · board · skalierbar</span>
-            <span class="m-pill plan">in arbeit</span>
+          <div class="feat">
+            <div class="n">03</div>
+            <h3>DGN-Leitlinien-Beleg</h3>
+            <p>Jede Empfehlung hängt an einer DGN-Leitlinie, mit Quelle und Beleg. Nichts frei erfunden.</p>
           </div>
-          <div class="m-stratum">
-            <span class="n">03</span>
-            <span class="nm">Script</span>
-            <span class="tags">pro arzt · sprach-anamnese</span>
-            <span class="m-pill live">live</span>
-          </div>
-          <div class="m-stratum">
-            <span class="n">02</span>
-            <span class="nm">Casus</span>
-            <span class="tags">pro arzt · erfahrungs-memory</span>
-            <span class="m-pill wip">wip</span>
-          </div>
-          <div class="m-stratum m-base">
-            <span class="n">01</span>
-            <span class="nm">Klinik-<span class="accent">Dashboard</span></span>
-            <span class="tags">sockel · pro klinik · basis-layer</span>
-            <span class="m-pill live">live</span>
-          </div>
-        </div>
-
-        <!-- ============================================================
-             A · Editorial Numeralen-Stack
-             ============================================================ -->
-        <div class="stufen-editorial">
-
-          <article class="editorial-row base" id="stufe-01">
-            <div class="numeral">01</div>
-            <div class="content">
-              <div class="sub">sockel · pro klinik · live</div>
-              <h3>Klinik-<span class="accent">Dashboard</span></h3>
-              <p>
-                Der gemeinsame Arbeitsplatz einer Klinik. Termine, SOPs, Telefonverzeichnis,
-                Konsile, Notizen, DSFA. Dazu ein lokales RAG über das gesamte Klinik-Wissen.
-                <strong>Skalierbar auf jede andere Klinik</strong>, die einen eigenen Workspace braucht.
-              </p>
-              <ul class="bullets">
-                <li>termine · sops · telefon · konsile</li>
-                <li>RAG über klinik-eigene dokumente</li>
-                <li>aws bedrock · interner LLM-pfad</li>
-                <li>basis-layer für alle stufen darüber</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="14" y="14" width="120" height="78" rx="3" fill="none" stroke="rgba(245,197,24,0.55)" stroke-width="0.8"/>
-                <line x1="14" y1="26" x2="134" y2="26" stroke="rgba(245,197,24,0.55)" stroke-width="0.6"/>
-                <line x1="44" y1="26" x2="44" y2="92" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="74" y1="26" x2="74" y2="92" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="104" y1="26" x2="104" y2="92" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="14" y1="48" x2="134" y2="48" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="14" y1="70" x2="134" y2="70" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <rect x="78" y="52" width="22" height="14" rx="1" fill="rgba(245,197,24,0.7)"/>
-                <rect x="150" y="14" width="136" height="78" rx="3" fill="none" stroke="rgba(245,197,24,0.55)" stroke-width="0.8"/>
-                <line x1="162" y1="28" x2="274" y2="28" stroke="rgba(245,197,24,0.65)" stroke-width="0.9"/>
-                <line x1="162" y1="38" x2="274" y2="38" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="162" y1="46" x2="248" y2="46" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="162" y1="56" x2="274" y2="56" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="162" y1="64" x2="262" y2="64" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="162" y1="74" x2="274" y2="74" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <line x1="162" y1="82" x2="252" y2="82" stroke="rgba(245,197,24,0.30)" stroke-width="0.5"/>
-                <circle cx="266" cy="22" r="3" fill="rgba(245,197,24,0.7)"/>
-                <line x1="30" y1="150" x2="270" y2="150" stroke="rgba(245,197,24,0.4)" stroke-width="0.8"/>
-                <g>
-                  <circle cx="30" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                  <circle cx="70" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                  <circle cx="110" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                  <circle cx="150" cy="150" r="6" fill="rgba(245,197,24,0.85)"/>
-                  <circle cx="190" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                  <circle cx="230" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                  <circle cx="270" cy="150" r="6" fill="#0e1014" stroke="rgba(245,197,24,0.65)" stroke-width="0.8"/>
-                </g>
-                <text x="150" y="178" font-family="ui-monospace,monospace" font-size="8" fill="rgba(245,197,24,0.55)" letter-spacing="1.5" text-anchor="middle">· RAG · 7 SOURCES · LIVE</text>
-              </svg>
-            </div>
-          </article>
-
-          <article class="editorial-row scope-blue" id="stufe-02">
-            <div class="numeral">02</div>
-            <div class="content">
-              <div class="sub">pro arzt · persönlich · wip</div>
-              <h3>Casus <span class="quiet">· Erfahrungsgedächtnis</span></h3>
-              <p>
-                Eigene Fälle, eigene Lessons, eigene Suche. Sprache rein, strukturierter
-                Fall raus. Lit-Diff prüft gegen PubMed und Leitlinien: <em>Gilt das noch?</em>
-                Liegt auf dem Klinik-Dashboard auf.
-              </p>
-              <ul class="bullets">
-                <li>capture · 8 stages · pseudonymisiert</li>
-                <li>pgvector · 4 embedding-scopes</li>
-                <li>tier-trennung · personal / shared / public</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <g>
-                  <rect x="40" y="40" width="160" height="110" rx="6" fill="rgba(96,165,250,0.04)" stroke="rgba(96,165,250,0.30)" stroke-width="0.8" transform="rotate(-7 120 95)"/>
-                  <rect x="56" y="32" width="160" height="110" rx="6" fill="rgba(96,165,250,0.08)" stroke="rgba(96,165,250,0.50)" stroke-width="0.8" transform="rotate(-3 136 87)"/>
-                  <rect x="80" y="26" width="172" height="120" rx="6" fill="rgba(96,165,250,0.14)" stroke="rgba(96,165,250,0.85)" stroke-width="1"/>
-                </g>
-                <line x1="98" y1="44" x2="226" y2="44" stroke="rgba(96,165,250,0.85)" stroke-width="1.2"/>
-                <line x1="98" y1="58" x2="240" y2="58" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="68" x2="220" y2="68" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="78" x2="240" y2="78" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="92" x2="220" y2="92" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="102" x2="240" y2="102" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="112" x2="200" y2="112" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                <line x1="98" y1="126" x2="240" y2="126" stroke="rgba(245,197,24,0.85)" stroke-width="1.2"/>
-                <line x1="98" y1="135" x2="220" y2="135" stroke="rgba(245,197,24,0.4)" stroke-width="0.5"/>
-                <circle cx="240" cy="38" r="4" fill="rgba(245,197,24,0.85)"/>
-                <text x="40" y="178" font-family="ui-monospace,monospace" font-size="8" fill="rgba(96,165,250,0.55)" letter-spacing="1.4">· LESSON · A3F1 · DGN-2024</text>
-              </svg>
-            </div>
-          </article>
-
-          <article class="editorial-row scope-blue" id="stufe-03">
-            <div class="numeral">03</div>
-            <div class="content">
-              <div class="sub">pro arzt · live · sprach-anamnese</div>
-              <h3>Script <span class="quiet">· Sprach-Anamnese</span></h3>
-              <p>
-                Diktat statt Tippen. WhisperX läuft lokal mit Diarisierung,
-                LLM-Extraktion frei wählbar, von Ollama bis Frontier. Jede
-                Aufgabe mit wörtlichem Zitat-Beleg gegen Konfabulation.
-                <strong>Setzt auf Casus auf und füttert es.</strong>
-              </p>
-              <ul class="bullets">
-                <li>whisperX · pyannote · venv lokal</li>
-                <li>provider-toggle · ollama, claude, openai</li>
-                <li>meeting-modus · diarisiert · zitat-validierung</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <text x="14" y="36" font-family="ui-monospace,monospace" font-size="8" fill="rgba(245,197,24,0.85)" letter-spacing="1.5">S1</text>
-                <g stroke="var(--accent)" stroke-opacity="0.85" stroke-width="1.6" stroke-linecap="round">
-                  <line x1="38" y1="32" x2="38" y2="48"/>
-                  <line x1="48" y1="24" x2="48" y2="56"/>
-                  <line x1="58" y1="18" x2="58" y2="62"/>
-                  <line x1="68" y1="28" x2="68" y2="52"/>
-                  <line x1="78" y1="10" x2="78" y2="70"/>
-                  <line x1="88" y1="22" x2="88" y2="58"/>
-                  <line x1="98" y1="30" x2="98" y2="50"/>
-                  <line x1="108" y1="16" x2="108" y2="64"/>
-                  <line x1="118" y1="26" x2="118" y2="54"/>
-                  <line x1="128" y1="20" x2="128" y2="60"/>
-                  <line x1="138" y1="32" x2="138" y2="48"/>
-                </g>
-                <text x="14" y="100" font-family="ui-monospace,monospace" font-size="8" fill="rgba(96,165,250,0.85)" letter-spacing="1.5">S2</text>
-                <g stroke="#60a5fa" stroke-opacity="0.75" stroke-width="1.6" stroke-linecap="round">
-                  <line x1="38" y1="96" x2="38" y2="112"/>
-                  <line x1="48" y1="92" x2="48" y2="116"/>
-                  <line x1="58" y1="98" x2="58" y2="110"/>
-                  <line x1="68" y1="84" x2="68" y2="124"/>
-                  <line x1="78" y1="92" x2="78" y2="116"/>
-                  <line x1="88" y1="70" x2="88" y2="138"/>
-                  <line x1="98" y1="84" x2="98" y2="124"/>
-                  <line x1="108" y1="92" x2="108" y2="116"/>
-                  <line x1="118" y1="74" x2="118" y2="134"/>
-                  <line x1="128" y1="86" x2="128" y2="122"/>
-                  <line x1="138" y1="96" x2="138" y2="112"/>
-                </g>
-                <path d="M154 100 L180 100 M174 96 L180 100 L174 104" stroke="rgba(96,165,250,0.6)" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
-                <rect x="196" y="40" width="78" height="124" rx="3" fill="none" stroke="rgba(96,165,250,0.55)" stroke-width="0.8"/>
-                <line x1="206" y1="56" x2="266" y2="56" stroke="var(--accent)" stroke-opacity="0.85" stroke-width="1.4"/>
-                <line x1="206" y1="68" x2="258" y2="68" stroke="rgba(96,165,250,0.35)" stroke-width="0.5"/>
-                <line x1="206" y1="78" x2="266" y2="78" stroke="rgba(96,165,250,0.35)" stroke-width="0.5"/>
-                <line x1="206" y1="94" x2="266" y2="94" stroke="var(--accent)" stroke-opacity="0.85" stroke-width="1.4"/>
-                <line x1="206" y1="106" x2="252" y2="106" stroke="rgba(96,165,250,0.35)" stroke-width="0.5"/>
-                <line x1="206" y1="116" x2="266" y2="116" stroke="rgba(96,165,250,0.35)" stroke-width="0.5"/>
-                <line x1="206" y1="132" x2="266" y2="132" stroke="var(--accent)" stroke-opacity="0.85" stroke-width="1.4"/>
-                <line x1="206" y1="144" x2="258" y2="144" stroke="rgba(96,165,250,0.35)" stroke-width="0.5"/>
-                <text x="14" y="184" font-family="ui-monospace,monospace" font-size="8" fill="rgba(96,165,250,0.55)" letter-spacing="1.4">· REC · 02:34 · 2 SPEAKER</text>
-              </svg>
-            </div>
-          </article>
-
-          <article class="editorial-row scope-violet" id="stufe-04">
-            <div class="numeral">04</div>
-            <div class="content">
-              <div class="sub">multi-klinik · board · in arbeit</div>
-              <h3>Neuro-<span class="accent">Board</span> <span class="quiet">· neurovaskulär</span></h3>
-              <p>
-                Externe Klinik meldet einen Patienten zur Fallbesprechung im
-                neurovaskulären Board an. Strukturierte Eingabe, Vorbereitung,
-                Beschluss, Rückmeldung. Das Pattern ist generisch:
-                <strong>aus Neuro-Board wird Onko-Board, Kardio-Board, was die Klinik braucht.</strong>
-              </p>
-              <ul class="bullets">
-                <li>externe anmeldung · upload + struktur</li>
-                <li>multidisziplinäre fallbesprechung</li>
-                <li>beschluss-protokoll + rückmeldung</li>
-                <li>skalierbar auf jedes klinik-board</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="14" y="14" width="56" height="28" rx="3" fill="none" stroke="rgba(96,165,250,0.55)" stroke-width="0.8"/>
-                <line x1="22" y1="24" x2="62" y2="24" stroke="rgba(96,165,250,0.5)" stroke-width="0.5"/>
-                <line x1="22" y1="32" x2="56" y2="32" stroke="rgba(96,165,250,0.5)" stroke-width="0.5"/>
-                <text x="22" y="56" font-family="ui-monospace,monospace" font-size="7" fill="rgba(96,165,250,0.55)" letter-spacing="0.8">EXTERN</text>
-                <path d="M68 40 L130 92" stroke="var(--accent)" stroke-opacity="0.7" stroke-width="1.8" stroke-dasharray="5 3" fill="none"/>
-                <path d="M124 86 L130 92 L126 84" stroke="var(--accent)" stroke-opacity="0.85" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-                <circle cx="160" cy="110" r="36" fill="none" stroke="rgba(167,139,250,0.65)" stroke-width="1.2"/>
-                <circle cx="160" cy="110" r="26" fill="none" stroke="rgba(167,139,250,0.35)" stroke-width="0.8"/>
-                <circle cx="160" cy="110" r="8" fill="rgba(167,139,250,0.85)"/>
-                <line x1="160" y1="74" x2="160" y2="58" stroke="rgba(167,139,250,0.55)" stroke-width="0.8"/>
-                <circle cx="160" cy="52" r="8" fill="#0e1014" stroke="rgba(167,139,250,0.7)" stroke-width="0.8"/>
-                <circle cx="160" cy="52" r="3" fill="#a78bfa"/>
-                <line x1="196" y1="110" x2="216" y2="110" stroke="rgba(167,139,250,0.55)" stroke-width="0.8"/>
-                <circle cx="222" cy="110" r="8" fill="#0e1014" stroke="rgba(167,139,250,0.7)" stroke-width="0.8"/>
-                <circle cx="222" cy="110" r="3" fill="#34d399"/>
-                <line x1="160" y1="146" x2="160" y2="166" stroke="rgba(167,139,250,0.55)" stroke-width="0.8"/>
-                <circle cx="160" cy="172" r="8" fill="#0e1014" stroke="rgba(167,139,250,0.7)" stroke-width="0.8"/>
-                <circle cx="160" cy="172" r="3" fill="#60a5fa"/>
-                <line x1="124" y1="110" x2="104" y2="110" stroke="rgba(167,139,250,0.55)" stroke-width="0.8"/>
-                <circle cx="98" cy="110" r="8" fill="#0e1014" stroke="rgba(167,139,250,0.7)" stroke-width="0.8"/>
-                <circle cx="98" cy="110" r="3" fill="#f472b6"/>
-                <rect x="244" y="14" width="42" height="22" rx="2" fill="none" stroke="rgba(167,139,250,0.30)" stroke-width="0.8" stroke-dasharray="3 2"/>
-                <text x="265" y="28" font-family="ui-monospace,monospace" font-size="7" fill="rgba(167,139,250,0.45)" text-anchor="middle">+ BOARD</text>
-                <text x="160" y="194" font-family="ui-monospace,monospace" font-size="8" fill="rgba(167,139,250,0.55)" letter-spacing="1.4" text-anchor="middle">· 4 DISZIPLINEN · 1 EXTERN</text>
-              </svg>
-            </div>
-          </article>
-
-          <article class="editorial-row scope-blue" id="stufe-05">
-            <div class="numeral">05</div>
-            <div class="content">
-              <div class="sub">pro klinik · live · echtzeit</div>
-              <h3>Stroke <span class="accent">Unit</span> <span class="quiet">· lokales Dashboard</span></h3>
-              <p>
-                Jede Klinik sieht ihre eigenen Stroke-Patienten in Echtzeit.
-                Zwei Modi: Simulation für Demo, Hashgraph für Produktion.
-                Die KIS-Anbindung pro Klinik kommt als nächster Schritt,
-                damit die Daten ohne Doppeleingabe ins Dashboard fließen.
-              </p>
-              <ul class="bullets">
-                <li>echtzeit · auto-refresh · 10s</li>
-                <li>react · zustand · simulation + hashgraph</li>
-                <li>geplant · KIS-anbindung pro klinik</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(80 100)">
-                  <circle r="36" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="2.4"/>
-                  <circle r="36" fill="none" stroke="var(--accent)" stroke-width="3.6" stroke-linecap="round"
-                    stroke-dasharray="226" stroke-dashoffset="80" transform="rotate(-90)">
-                    <animate attributeName="stroke-dashoffset" values="0;226" dur="3s" repeatCount="indefinite"/>
-                  </circle>
-                  <text y="6" font-family="Geist,sans-serif" font-size="20" font-weight="600" fill="var(--accent)" text-anchor="middle">10s</text>
-                </g>
-                <path d="M140 100 L154 100 L160 84 L166 116 L172 76 L178 100 L196 100 L210 100 L222 100 L228 90 L234 110 L240 100 L260 100 L280 100"
-                  stroke="var(--accent)" stroke-opacity="0.85" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-                <g transform="translate(140 130)">
-                  <rect x="0" y="0" width="140" height="14" rx="2" fill="none" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                  <rect x="0" y="18" width="140" height="14" rx="2" fill="none" stroke="rgba(96,165,250,0.40)" stroke-width="0.6"/>
-                  <rect x="0" y="36" width="140" height="14" rx="2" fill="rgba(245,197,24,0.10)" stroke="rgba(245,197,24,0.5)" stroke-width="0.7"/>
-                  <circle cx="8" cy="7" r="2" fill="#34d399"/>
-                  <circle cx="8" cy="25" r="2" fill="#34d399"/>
-                  <circle cx="8" cy="43" r="2" fill="var(--accent)"/>
-                </g>
-                <text x="14" y="184" font-family="ui-monospace,monospace" font-size="8" fill="rgba(96,165,250,0.55)" letter-spacing="1.4">· LIVE · 3 PATIENTEN · 10S REFRESH</text>
-              </svg>
-            </div>
-          </article>
-
-          <article class="editorial-row scope-cyan" id="stufe-06">
-            <div class="numeral">06</div>
-            <div class="content">
-              <div class="sub">multi-klinik · netz · live</div>
-              <h3>Stroke <span class="accent">Network</span> <span class="quiet">· klinikübergreifend</span></h3>
-              <p>
-                Mehrere Kliniken speisen ihre Stroke-Daten per HL7 in den
-                Hedera Hashgraph. Das übergeordnete Dashboard rekonstruiert
-                sich aus den HCS-Messages, alle Kliniken haben den gleichen
-                Datenstand. <strong>Peergroup-Vergleiche und Versorgungsforschung
-                auf einer manipulationssicheren Datenbasis.</strong>
-              </p>
-              <ul class="bullets">
-                <li>HL7 → hashgraph · pro klinik</li>
-                <li>rekonstruktion via mirror node</li>
-                <li>peergroup-vergleiche · benchmarking</li>
-                <li>versorgungsforschung · multi-zentrum</li>
-              </ul>
-            </div>
-            <div class="screenshot" aria-hidden="true">
-              <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                <g stroke="rgba(96,165,250,0.18)" stroke-width="0.5" fill="none">
-                  <line x1="30" y1="20" x2="76" y2="50"/>
-                  <line x1="30" y1="20" x2="122" y2="50"/>
-                  <line x1="30" y1="50" x2="76" y2="80"/>
-                  <line x1="30" y1="50" x2="168" y2="80"/>
-                  <line x1="30" y1="80" x2="76" y2="110"/>
-                  <line x1="30" y1="80" x2="122" y2="110"/>
-                  <line x1="30" y1="110" x2="76" y2="140"/>
-                  <line x1="30" y1="110" x2="214" y2="140"/>
-                  <line x1="76" y1="50" x2="122" y2="80"/>
-                  <line x1="76" y1="80" x2="122" y2="110"/>
-                  <line x1="76" y1="80" x2="168" y2="110"/>
-                  <line x1="76" y1="110" x2="122" y2="140"/>
-                  <line x1="76" y1="110" x2="260" y2="140"/>
-                  <line x1="122" y1="50" x2="168" y2="80"/>
-                  <line x1="122" y1="80" x2="168" y2="110"/>
-                  <line x1="122" y1="80" x2="214" y2="110"/>
-                  <line x1="122" y1="110" x2="168" y2="140"/>
-                  <line x1="168" y1="80" x2="214" y2="110"/>
-                  <line x1="168" y1="80" x2="260" y2="110"/>
-                  <line x1="168" y1="110" x2="214" y2="140"/>
-                  <line x1="214" y1="50" x2="260" y2="80"/>
-                  <line x1="214" y1="80" x2="260" y2="110"/>
-                  <line x1="214" y1="110" x2="260" y2="140"/>
-                </g>
-                <g stroke="var(--accent)" stroke-width="1.4" stroke-opacity="0.90" fill="none" stroke-linecap="round">
-                  <line x1="30" y1="50" x2="76" y2="80"/>
-                  <line x1="76" y1="80" x2="122" y2="110"/>
-                  <line x1="122" y1="110" x2="168" y2="140"/>
-                  <line x1="168" y1="140" x2="214" y2="170"/>
-                </g>
-                <g font-family="ui-monospace,monospace" font-size="6" fill="#d1e4fa" text-anchor="middle">
-                  <g><rect x="18" y="14" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="30" y="22">A3F1</text></g>
-                  <g><rect x="18" y="44" width="24" height="12" rx="1.5" fill="rgba(245,197,24,0.20)" stroke="var(--accent)" stroke-width="0.8"/><text x="30" y="52" fill="#ffd633">7CB4</text></g>
-                  <g><rect x="18" y="74" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="30" y="82">D08E</text></g>
-                  <g><rect x="18" y="104" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="30" y="112">29FA</text></g>
-                  <g><rect x="64" y="44" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="76" y="52">E22D</text></g>
-                  <g><rect x="64" y="74" width="24" height="12" rx="1.5" fill="rgba(245,197,24,0.20)" stroke="var(--accent)" stroke-width="0.8"/><text x="76" y="82" fill="#ffd633">F59A</text></g>
-                  <g><rect x="64" y="104" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="76" y="112">B47C</text></g>
-                  <g><rect x="64" y="134" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="76" y="142">1A8F</text></g>
-                  <g><rect x="110" y="44" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="122" y="52">8E37</text></g>
-                  <g><rect x="110" y="74" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="122" y="82">06B1</text></g>
-                  <g><rect x="110" y="104" width="24" height="12" rx="1.5" fill="rgba(245,197,24,0.20)" stroke="var(--accent)" stroke-width="0.8"/><text x="122" y="112" fill="#ffd633">CB5D</text></g>
-                  <g><rect x="110" y="134" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="122" y="142">F03A</text></g>
-                  <g><rect x="156" y="74" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="168" y="82">4CA9</text></g>
-                  <g><rect x="156" y="104" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="168" y="112">80CD</text></g>
-                  <g><rect x="156" y="134" width="24" height="12" rx="1.5" fill="rgba(245,197,24,0.20)" stroke="var(--accent)" stroke-width="0.8"/><text x="168" y="142" fill="#ffd633">58C3</text></g>
-                  <g><rect x="202" y="44" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.5)" stroke-width="0.5" opacity="0.6"/><text x="214" y="52" opacity="0.6">19E4</text></g>
-                  <g><rect x="202" y="74" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="214" y="82">E749</text></g>
-                  <g><rect x="202" y="104" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="214" y="112">9E53</text></g>
-                  <g><rect x="202" y="134" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.6)" stroke-width="0.5"/><text x="214" y="142">CB3D</text></g>
-                  <g><rect x="202" y="164" width="24" height="12" rx="1.5" fill="rgba(245,197,24,0.22)" stroke="var(--accent)" stroke-width="0.8"/><text x="214" y="172" fill="#ffd633">40A3</text></g>
-                  <g><rect x="248" y="74" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.5)" stroke-width="0.5" opacity="0.6"/><text x="260" y="82" opacity="0.6">674C</text></g>
-                  <g><rect x="248" y="104" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.5)" stroke-width="0.5" opacity="0.6"/><text x="260" y="112" opacity="0.6">CF9A</text></g>
-                  <g><rect x="248" y="134" width="24" height="12" rx="1.5" fill="#1e3a5f" stroke="rgba(96,165,250,0.5)" stroke-width="0.5" opacity="0.6"/><text x="260" y="142" opacity="0.6">4649</text></g>
-                </g>
-                <text x="14" y="190" font-family="ui-monospace,monospace" font-size="8" fill="rgba(45,212,191,0.7)" letter-spacing="1.4">· HCS · 5 FAMOUS · 23 EVENTS</text>
-              </svg>
-            </div>
-          </article>
-
-        </div>
-
-        <!-- Eigener Track · Dashboard of Life -->
-        <div class="track-divider">
-          <span class="label">eigener track · nicht klinik</span>
-        </div>
-
-        <article class="editorial-row track-private" id="dol">
-          <div class="numeral">DoL</div>
-          <div class="content">
-            <div class="sub">privat · persönlich · live</div>
-            <h3>Dashboard <span class="accent">of Life</span> <span class="quiet">· persönlicher Cockpit</span></h3>
-            <p>
-              Mission-Control für den Tag, abseits der Klinik. Atlas der
-              Lebensbereiche, Briefing am Morgen, Memory-Layer und Kalender
-              in einem Cockpit. <strong>Mit eigenem KI-Assistenten</strong>, der
-              über alles Bescheid weiß. Eigener Track, eigener Stack,
-              keine Klinik-Daten.
-            </p>
-            <ul class="bullets">
-              <li>atlas · familie · kinder · job · self</li>
-              <li>jarvis · ⌘K · streaming · eigener assistent</li>
-              <li>memory · überfälligkeiten · pillars</li>
-            </ul>
-          </div>
-          <div class="screenshot" aria-hidden="true">
-            <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-              <g transform="translate(150 110)">
-                <g fill="none" stroke="rgba(45,212,191,0.18)" stroke-width="0.6">
-                  <polygon points="0,-70 45,-22 28,57 -28,57 -45,-22"/>
-                  <polygon points="0,-56 36,-17 22,46 -22,46 -36,-17"/>
-                  <polygon points="0,-42 27,-13 17,34 -17,34 -27,-13"/>
-                  <polygon points="0,-28 18,-9 11,23 -11,23 -18,-9"/>
-                  <polygon points="0,-14 9,-4 5,11 -5,11 -9,-4"/>
-                </g>
-                <g stroke="rgba(45,212,191,0.18)" stroke-width="0.5">
-                  <line x1="0" y1="0" x2="0" y2="-70"/>
-                  <line x1="0" y1="0" x2="45" y2="-22"/>
-                  <line x1="0" y1="0" x2="54" y2="23"/>
-                  <line x1="0" y1="0" x2="28" y2="57"/>
-                  <line x1="0" y1="0" x2="-15" y2="68"/>
-                  <line x1="0" y1="0" x2="-54" y2="45"/>
-                  <line x1="0" y1="0" x2="-54" y2="-45"/>
-                  <line x1="0" y1="0" x2="-15" y2="-68"/>
-                  <line x1="0" y1="0" x2="45" y2="22"/>
-                </g>
-                <polygon points="0,-56 36,-17 22,46 -22,46 -36,-17" fill="none" stroke="rgba(255,255,255,0.30)" stroke-width="0.6" stroke-dasharray="2 2"/>
-                <polygon points="0,-52 39,-19 19,42 -16,38 -32,-19"
-                  fill="rgba(45,212,191,0.18)" stroke="#2dd4bf" stroke-width="1.8" stroke-linejoin="round"/>
-                <g font-family="ui-monospace,monospace" font-size="6" fill="rgba(45,212,191,0.65)" text-anchor="middle">
-                  <text x="0" y="-78">FAMILIE</text>
-                  <text x="53" y="-26">PARTNER</text>
-                  <text x="62" y="28">KINDER</text>
-                  <text x="34" y="70">FREUNDE</text>
-                  <text x="-19" y="80">JOB</text>
-                  <text x="-62" y="52">HOBBIES</text>
-                  <text x="-62" y="-52">FINANZEN</text>
-                  <text x="-22" y="-78">SELF</text>
-                  <text x="56" y="26">REISEN</text>
-                </g>
-                <circle r="2.5" fill="#2dd4bf"/>
-              </g>
-              <text x="14" y="194" font-family="ui-monospace,monospace" font-size="8" fill="rgba(45,212,191,0.55)" letter-spacing="1.4">· WHEELCHART · 9 PILLARS · LIVE</text>
-            </svg>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <!-- ============================================================
-         Prinzipien · Manifest
-         ============================================================ -->
-    <section id="prinzipien">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <span class="label">prinzipien · vier sätze</span>
-            <h2>Wofür diese Werkstatt <span class="accent">steht</span>.</h2>
-          </div>
-        </div>
-        <div class="manifest">
-          <div class="item">
-            <span class="label">01 · privacy</span>
-            <h3>Patientendaten verlassen die Klinik nicht.</h3>
-            <p>
-              Anamnesen werden lokal transkribiert. Cloud-LLMs sind ein Schalter,
-              kein Default. Audio wird nach erfolgreicher Pseudonymisierung
-              <strong>gelöscht, nicht archiviert.</strong> Tier-Trennung physisch,
-              nicht logisch.
-            </p>
-          </div>
-          <div class="item">
-            <span class="label">02 · sprache</span>
-            <h3>Tippen ist das Bottleneck, nicht das Denken.</h3>
-            <p>
-              Klinik passiert mündlich. Werkzeuge müssen Sprache verstehen:
-              mit Sprechertrennung, Zitat-Beleg und deutscher Fachsprache.
-              <strong>Diktat zu Struktur, nicht Tippen zu Text.</strong>
-            </p>
-          </div>
-          <div class="item">
-            <span class="label">03 · evidenz</span>
-            <h3>Lesson statt ICD. Beleg statt Behauptung.</h3>
-            <p>
-              Ein Fall lohnt sich, wenn das <em>Aha</em> festgehalten ist,
-              nicht der Code. LLM-Outputs werden gegen die Quelle geprüft.
-              Was nicht im Transkript steht, fällt raus. <strong>Lit-Diff
-              fragt regelmäßig: gilt das noch?</strong>
-            </p>
-          </div>
-          <div class="item">
-            <span class="label">04 · density</span>
-            <h3>Cockpit, kein Showroom.</h3>
-            <p>
-              Informationsdichte vor Whitespace. Mono für alles Technische,
-              Sans für alles Menschliche. <strong>Amber sparsam.</strong>
-              Atmosphäre durch vier dezente Schichten: aurora, grid, spotlight,
-              halo. Nichts ist dekorativ, alles bedeutet etwas.
-            </p>
+          <div class="feat">
+            <div class="n">04</div>
+            <h3>Jede Aussage belegt</h3>
+            <p>Was nicht im Transkript steht, fällt raus. Kein Halluzinieren, nur Dokumentiertes.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============================================================
-         Stack
-         ============================================================ -->
-    <section id="stack">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <span class="label">stack · vier säulen</span>
-            <h2>Was unter der <span class="accent">Haube</span> läuft.</h2>
-          </div>
+    <!-- demo · CTA links, Pipeline rechts -->
+    <section class="block demo">
+      <div class="wrap demo-row">
+        <div class="demo-cta">
+          <div class="k">· skript.kopfzummi.ai</div>
+          <p>Skript läuft bereits. Sieh es dir an und teste es auf deiner Station.</p>
+          <a class="btn primary" href="https://skript.kopfzummi.ai">skript.kopfzummi.ai öffnen →</a>
         </div>
-        <div class="stack">
-          <div class="col">
-            <span class="label">frontend</span>
-            <ul>
-              <li>next.js 16 · app router</li>
-              <li>react 19 · server components</li>
-              <li>tailwind v4 · geist · jetbrains mono</li>
-              <li>shadcn · lucide · zustand</li>
-            </ul>
-          </div>
-          <div class="col">
-            <span class="label">backend</span>
-            <ul>
-              <li>vercel · fluid compute</li>
-              <li>neon postgres · pgvector · HNSW</li>
-              <li>drizzle · server actions</li>
-              <li>vercel cron · workflow · queues</li>
-            </ul>
-          </div>
-          <div class="col">
-            <span class="label">ki</span>
-            <ul>
-              <li>claude sonnet · opus 4.x</li>
-              <li>openai · embed-3-small</li>
-              <li>whisperX · pyannote · lokal</li>
-              <li>ollama · llama 3.1 · 8b</li>
-            </ul>
-          </div>
-          <div class="col">
-            <span class="label">audit · trust</span>
-            <ul>
-              <li>hedera · HCS-2 messages</li>
-              <li>mirror node · REST</li>
-              <li>PHI-architektur · AVV-konform</li>
-              <li>dsgvo · zweck-trennung</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ============================================================
-         Über · Story
-         ============================================================ -->
-    <section id="ueber">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <span class="label">über · die werkstatt</span>
-            <h2>Wer das <span class="accent">baut</span>, und warum.</h2>
+        <div class="panel" aria-hidden="true">
+          <div class="panel-bar">
+            <span class="d"></span><span class="d"></span><span class="d"></span>
+            <span class="t">skript · pipeline</span>
           </div>
-        </div>
-        <div class="story">
-          <div>
-            <span class="label">jens neumann · neurologe</span>
-            <h2>Ein Arzt, der <span class="accent">Code schreibt</span>, damit die Klinik schneller wird.</h2>
-            <p>
-              Jeden Tag entstehen in der Klinik wertvolle Beobachtungen, die
-              im KIS verschwinden. <strong>kopfzummi.ai</strong> hält das
-              <em>Aha</em> fest, versteht Sprache, und hinterlässt Audit-Spuren,
-              denen man auch in fünf Jahren noch traut.
-            </p>
-            <p>
-              Gebaut wird zwischen <strong>Universitätsklinik</strong> und
-              <strong>Engineering-Stack</strong>. Jede Entscheidung wird zweimal
-              geprüft: einmal klinisch, einmal technisch.
-            </p>
-            <div class="quote">
-              „Den Kopf zu meinen. Nicht für mich denken lassen, sondern mit
-              meinem Denken arbeiten. Das ist der Punkt."
-              <span class="by">· kopfzummi · arbeits-prinzip</span>
+          <div class="panel-body">
+            <div class="flowrow" id="heroFlow">
+              <div class="flowcell"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg></div><div class="nm">Aufnahme</div></div>
+              <div class="flowcell"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8.5 13h7"/><path d="M8.5 16.5h5"/></svg></div><div class="nm">Transkript</div></div>
+              <div class="flowcell"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div class="nm">Anonym.</div></div>
+              <div class="flowcell"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.075.84-.505 1.02-.969a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/></svg></div><div class="nm">Anamnese</div></div>
+              <div class="flowcell pro"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div><div class="nm">DDx · Tx</div></div>
             </div>
-          </div>
-          <div>
-            <span class="label">timeline · aktuell</span>
-            <div style="margin-top:10px; display:grid; gap:10px;">
-              <div class="card" style="border-radius:10px;">
-                <div class="card-head"><span class="label live">live · jetzt</span><span class="pill accent">2026 · Q2</span></div>
-                <div class="card-body" style="padding:12px 14px;">
-                  <p style="font-size:12.5px; margin:0; color:var(--text-secondary);">
-                    <strong style="color:var(--text-primary);">Casus</strong> zieht auf Neon mit pgvector um.
-                    <strong style="color:var(--text-primary);">Anamnese</strong> bekommt Meeting-Mode mit Sprecher-Diarisierung.
-                    <strong style="color:var(--text-primary);">Stroke Dashboard</strong> läuft Hashgraph-only in Produktion.
-                  </p>
-                </div>
+            <div class="panel-mini">
+              <div class="mini">
+                <div class="h">· transkript</div>
+                <div class="ln" id="heroTransLn">„…seit <b>heute Morgen</b> pulsierende, linksseitige Kopfschmerzen mit Lichtempfindlichkeit…"</div>
               </div>
-              <div class="card" style="border-radius:10px;">
-                <div class="card-head"><span class="label">geplant · Q3</span><span class="pill plan">roadmap</span></div>
-                <div class="card-body" style="padding:12px 14px;">
-                  <p style="font-size:12.5px; margin:0; color:var(--text-secondary);">
-                    Lit-Diff gegen PubMed und AWMF-Leitlinien. Auth via Clerk.
-                    Multi-User-Tier für Casus. PWA-Hülle für die Mobile-Aufnahme.
-                  </p>
-                </div>
-              </div>
-              <div class="card" style="border-radius:10px;">
-                <div class="card-head"><span class="label">vision</span><span class="pill">north-star</span></div>
-                <div class="card-body" style="padding:12px 14px;">
-                  <p style="font-size:12.5px; margin:0; color:var(--text-secondary);">
-                    Ein Werkzeugkasten, der so selbstverständlich zur Visite
-                    gehört wie Stethoskop und Reflexhammer. Nur dass er
-                    mitdenkt, mitschreibt und auf Stand bleibt.
-                  </p>
-                </div>
+              <div class="mini" id="heroAnamMini">
+                <div class="h">· anamnese</div>
+                <div class="ln"><b>V.a. Migräne ohne Aura</b><br>ICD-10 G43.0 · episodisch</div>
+                <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>belegt</span>
               </div>
             </div>
           </div>
@@ -1839,115 +421,117 @@
       </div>
     </section>
 
-    <!-- ============================================================
-         Kontakt
-         ============================================================ -->
-    <section id="kontakt" class="contact">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <span class="label">kontakt · kurze wege</span>
-            <h2>Reden wir <span class="accent">drüber</span>.</h2>
-          </div>
+    <!-- footer -->
+    <footer class="ft">
+      <div class="wrap ft-inner">
+        <div class="who">
+          Kontakt: <a href="mailto:jens_neumann@kopfzummi.ai">jens_neumann@kopfzummi.ai</a><br/>
+          Weitere Werkzeuge folgen.
         </div>
-        <div class="card">
-          <div class="card-head">
-            <span class="label">· direkt · keine umwege</span>
-            <span class="pill accent">offen für kooperationen</span>
-          </div>
-          <div class="card-body">
-            <div class="contact-field">
-              <div class="lbl"><span class="label">e-mail</span></div>
-              <div class="val">
-                <a href="mailto:jens_neumann@me.com">jens_neumann<span class="accent">@</span>me.com</a>
-              </div>
-            </div>
-            <div class="contact-field">
-              <div class="lbl"><span class="label">basis</span></div>
-              <div class="val">
-                Universitätsklinikum Magdeburg<br/>
-                <span style="color:var(--text-muted);">Klinik für Neurologie · Magdeburg</span>
-              </div>
-            </div>
-            <div class="contact-field">
-              <div class="lbl"><span class="label">kooperation</span></div>
-              <div class="val" style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
-                Klinik, Forschung, Engineering. Spannend wird es da, wo
-                <strong style="color:var(--text-primary);">klinischer Workflow</strong>,
-                <strong style="color:var(--text-primary);">KI</strong> und
-                <strong style="color:var(--text-primary);">Audit</strong> zusammen auftauchen.
-              </div>
-            </div>
-            <div class="contact-field">
-              <div class="lbl"><span class="label">status</span></div>
-              <div class="val" style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
-                <span class="label live">aktiv · 2026</span>
-                <span style="display:block; margin-top:8px;">
-                  Werkstatt läuft. Pitches auf Anfrage,
-                  Demos meistens innerhalb einer Woche.
-                </span>
-              </div>
-            </div>
-          </div>
+        <div class="meta">
+          <span class="brainmark" aria-hidden="true"></span>
+          <span>· kopfzummi.ai · digitale werkzeuge · 2026</span>
         </div>
       </div>
-    </section>
+    </footer>
+
   </main>
 
-  <footer>
-    <div class="left">
-      kopfzummi<span style="color:var(--accent); margin: 0 4px;">.ai</span> · &copy; 2026 · jens neumann
-    </div>
-    <div class="right">
-      <span>· cockpit · v1.0</span>
-      <span>· built · in magdeburg</span>
-    </div>
-  </footer>
-
   <script>
-    // ============================================================
-    // Cursor spotlight — pointermove + RAF throttle
-    // ============================================================
     (function () {
-      const root = document.documentElement;
-      const spot = document.querySelector('.cursor-spot');
-      if (!spot) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      if (window.matchMedia('(hover: none)').matches) return;
+      var root = document.documentElement;
 
-      let pendingX = 0, pendingY = 0, ticking = false;
-      window.addEventListener('pointermove', (e) => {
-        pendingX = e.clientX; pendingY = e.clientY;
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            spot.style.setProperty('--mx', pendingX + 'px');
-            spot.style.setProperty('--my', pendingY + 'px');
-            ticking = false;
-          });
-          ticking = true;
-        }
-      }, { passive: true });
+      /* ---- theme toggle · dark default · light via Toggle ---- */
+      var KEY = "kopfzummi-web-theme";
+      function getInitial() {
+        try { var s = localStorage.getItem(KEY); if (s === "dark" || s === "light") return s; } catch (e) {}
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) return "light";
+        return "dark";
+      }
+      function applyTheme(t) {
+        root.setAttribute("data-theme", t);
+        document.querySelectorAll("[data-theme-btn]").forEach(function (b) {
+          b.setAttribute("aria-pressed", b.dataset.themeBtn === t ? "true" : "false");
+        });
+        try { localStorage.setItem(KEY, t); } catch (e) {}
+      }
+      applyTheme(getInitial());
+      document.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-theme-btn]");
+        if (b) applyTheme(b.dataset.themeBtn);
+      });
+
+      /* ---- mobile nav ---- */
+      var burger = document.getElementById("burger");
+      var links = document.getElementById("navLinks");
+      if (burger && links) {
+        burger.addEventListener("click", function () {
+          var open = links.classList.toggle("open");
+          burger.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.closest("a")) { links.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); }
+        });
+      }
     })();
 
-    // ============================================================
-    // Theme toggle · cockpit ↔ abyss
-    // ============================================================
-    (function () {
-      const btn = document.getElementById('themeToggle');
-      const lbl = document.getElementById('themeLabel');
-      const html = document.documentElement;
-      const KEY = 'kopfzummi.theme';
-      const saved = localStorage.getItem(KEY);
-      if (saved === 'abyss' || saved === 'cockpit') {
-        html.setAttribute('data-theme', saved);
-        lbl.textContent = saved;
+    /* ---- hero pipeline demo (Money-Shot) ---- */
+    (function heroDemo() {
+      var flow = document.getElementById("heroFlow");
+      if (!flow) return;
+      var cells = flow.querySelectorAll(".flowcell");
+      var transLn = document.getElementById("heroTransLn");
+      var anamMini = document.getElementById("heroAnamMini");
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) return; /* statischer Endzustand bleibt aus dem HTML */
+
+      var TRANSCRIPT = "„…seit heute Morgen pulsierende, linksseitige Kopfschmerzen mit Lichtempfindlichkeit…“";
+      var timers = [];
+      function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+      function clearAll() { timers.forEach(clearTimeout); timers = []; }
+
+      function reset() {
+        clearAll();
+        cells.forEach(function (c) { c.classList.remove("lit", "done"); });
+        transLn.innerHTML = "";
+        anamMini.classList.remove("reveal-anam");
+        anamMini.classList.add("pending");
       }
-      btn.addEventListener('click', () => {
-        const cur = html.getAttribute('data-theme') === 'abyss' ? 'cockpit' : 'abyss';
-        html.setAttribute('data-theme', cur);
-        lbl.textContent = cur;
-        localStorage.setItem(KEY, cur);
-      });
+
+      function typeTranscript(done) {
+        transLn.innerHTML = '<span id="heroTypeTxt"></span><span class="hero-caret"></span>';
+        var txt = document.getElementById("heroTypeTxt");
+        var i = 0;
+        (function tick() {
+          if (i <= TRANSCRIPT.length) {
+            txt.textContent = TRANSCRIPT.slice(0, i);
+            i++;
+            at(20, tick);
+          } else if (done) { done(); }
+        })();
+      }
+
+      function run() {
+        reset();
+        var typeDur = TRANSCRIPT.length * 20 + 400;
+        at(300, function () { cells[0].classList.add("lit"); });
+        at(1000, function () { cells[0].classList.add("done"); cells[1].classList.add("lit"); typeTranscript(); });
+        at(1000 + typeDur, function () { cells[1].classList.add("done"); cells[2].classList.add("lit"); });
+        at(1000 + typeDur + 700, function () {
+          cells[2].classList.add("done"); cells[3].classList.add("lit");
+          anamMini.classList.remove("pending"); anamMini.classList.add("reveal-anam");
+        });
+        at(1000 + typeDur + 1500, function () { cells[3].classList.add("done"); cells[4].classList.add("lit"); });
+        at(1000 + typeDur + 5000, run); /* hold, dann Loop */
+      }
+
+      var started = false;
+      if ("IntersectionObserver" in window) {
+        var hio = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { if (en.isIntersecting && !started) { started = true; run(); } });
+        }, { threshold: 0.3 });
+        hio.observe(flow);
+      } else { run(); }
     })();
   </script>
 </body>
